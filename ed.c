@@ -77,7 +77,7 @@ int main(){
   inseririnicio(&head,valor);
   printf("informe o valor que deseja inserir no fimm\n");
   scanf("%d",&valor2);
-  /*inserirfim(&head,valor2)*/;
+  inserirfim(&head,valor2);
    printf("valores inseridos\n");
   imprimir(head);
     return 0;
