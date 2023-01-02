@@ -1,0 +1,228 @@
+
+void inserir_consolidada(No **root, No *node)
+{
+  // metodo de inserir para a arvore consolidada, o teste da raiz nula está aqui dentro desse metodo
+  if (*root == NULL)
+  {
+    *root = node;
+    return;
+  }
+
+  if ((*root)->passagem.localizador < node->passagem.localizador)
+  {
+    if ((*root)->direita == NULL)
+    {
+      (*root)->direita = node;
+      return;
+    }
+    inserir_consolidada(&(*root)->direita, node);
+  }
+  else
+  {
+    if ((*root)->esquerda == NULL)
+    {
+      (*root)->esquerda = node;
+      return;
+    }
+    inserir_consolidada(&(*root)->esquerda, node);
+  }
+}
+
+No *buscar_pai(No *node, int num)
+{
+  if (node == NULL)
+    return NULL;
+
+  if ((node->esquerda != NULL) && (node->esquerda->passagem.localizador == num))
+  {
+    return node;
+  }
+
+  if ((node->direita != NULL) && (node->direita->passagem.localizador == num))
+  {
+    return node;
+  }
+
+  if (node->passagem.localizador < num)
+  {
+    return buscar_pai(node->direita, num);
+  }
+  else
+  {
+    return buscar_pai(node->esquerda, num);
+  }
+}
+
+bool um_filho(No *node)
+{
+  // return (node->esquerda == NULL) && (node->direita == NULL);
+  if ((node->esquerda == NULL) && (node->direita != NULL))
+  {
+    return true;
+  }
+
+  if ((node->esquerda != NULL) && (node->direita == NULL))
+  {
+    return true;
+  }
+
+  return false;
+}
+
+bool eh_folha(No *node)
+{
+  // return (node->esquerda == NULL) && (node->direita == NULL);
+  if ((node->esquerda == NULL) && (node->direita == NULL))
+  {
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+}
+
+No *maior(No *node)
+{
+  if (node == NULL)
+    return NULL;
+  if (node->direita == NULL)
+    return node;
+  return maior(node->direita);
+}
+
+No *remover(No *node, int num);
+
+void substituir(No *pai, No *removido)
+{
+  if (um_filho(removido))
+  {
+    if (removido->esquerda != NULL)
+    {
+      pai->esquerda = removido->esquerda;
+    }
+    else
+    {
+      pai->direita = removido->direita;
+    }
+  }
+  else
+  {
+    No *substituto = maior(removido->esquerda);
+    remover(pai, substituto->passagem.localizador);
+    substituto->esquerda = removido->esquerda;
+    substituto->direita = removido->direita;
+    if (pai->passagem.localizador < substituto->passagem.localizador)
+    {
+      pai->direita = substituto;
+    }
+    else
+    {
+      pai->esquerda = substituto;
+    }
+    removido->direita = NULL;
+    removido->esquerda = NULL;
+  }
+}
+
+No *remover(No *node, int num)
+{
+  No *pai = buscar_pai(node, num);
+  if (pai == NULL)
+  {
+    printf("Numero não encontrado");
+    return NULL;
+  }
+  else
+  {
+    // printf("Pai: %d\n", pai->num);
+    No *removido = NULL;
+    if (pai->passagem.localizador < num)
+    {
+      removido = pai->direita;
+      if (eh_folha(removido))
+      {
+        pai->direita = NULL;
+      }
+      else
+      {
+        substituir(pai, removido);
+      }
+    }
+    else
+    {
+      removido = pai->esquerda;
+      if (eh_folha(removido))
+      {
+        pai->esquerda = NULL;
+      }
+      else
+      {
+        substituir(pai, removido);
+      }
+    }
+    // printf("Removido: %d\n", removido->num);
+    return removido;
+  }
+}
+
+void remover_raiz(No **raiz)
+{
+  if (*raiz == NULL)
+  {
+    printf("Árvore vazia\n");
+    return;
+  }
+
+  int num = (*raiz)->passagem.localizador;
+
+  if ((*raiz)->passagem.localizador == num)
+  {
+    if (eh_folha(*raiz))
+    {
+      inserir_consolidada(&consolidada, *raiz);
+      *raiz = NULL;
+      return;
+    }
+
+    if (um_filho(*raiz))
+    {
+      No *remover = *raiz;
+      if ((*raiz)->esquerda != NULL)
+      {
+        *raiz = (*raiz)->esquerda;
+        remover->esquerda = NULL;
+      }
+      else
+      {
+        *raiz = (*raiz)->direita;
+        remover->direita = NULL;
+      }
+      inserir_consolidada(&consolidada, remover);
+    }
+    else
+    {
+      No *substituto = maior((*raiz)->esquerda);
+
+      remover(*raiz, substituto->passagem.localizador);
+
+      substituto->esquerda = (*raiz)->esquerda;
+      substituto->direita = (*raiz)->direita;
+
+      (*raiz)->esquerda = NULL;
+      (*raiz)->direita = NULL;
+
+      inserir_consolidada(&consolidada, *raiz);
+
+      *raiz = substituto;
+    }
+  }
+}
+
+void consolidar(No **root)
+{
+  while ((*root) != NULL)
+  {
+    remover_raiz(root);
+  }
+}

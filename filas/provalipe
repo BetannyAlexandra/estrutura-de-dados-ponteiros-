@@ -1,0 +1,169 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct elem
+{
+    char nome[50];
+    char nivel[20];
+    int cpf;
+    struct elem *prox;
+} paciente;
+
+paciente *primeiro_emergencia = NULL, *ultimo_emergencia = NULL;
+paciente *primeiro_urgencia = NULL, *ultimo_urgencia = NULL;
+paciente *primeiro_eletivo = NULL, *ultimo_eletivo = NULL;
+
+void menu()
+{
+    printf("1-Inserir Paciente\n");
+    printf("0-Sair\n");
+}
+
+// paciente *next(paciente **primeiro_emergencia, paciente **ultimo_emergencia, paciente **primeiro_urgencia, paciente **ultimo_urgencia, paciente **primeiro_eletivo, paciente **ultimo_eletivo)
+// {
+//     paciente *proximo = NULL;
+
+//     if (primeiro_emergencia != NULL)
+//     {
+//         proximo = dequeue(primeiro_emergencia);
+//         printf("%s\n", proximo->nome);
+//         printf("%d\n", proximo->cpf);
+//         return;
+//     }
+//     else
+//     {
+//     }
+// }
+
+paciente *dequeue(paciente **first, paciente **last = NULL)
+{
+    if (*first == NULL)
+    {
+        return NULL;
+    }
+    paciente *front = *first;
+    (*first) = (*first)->prox;
+    if (*first == NULL)
+    {
+        *last == NULL;
+    }
+    front->prox = NULL;
+    return front;
+}
+
+paciente *criar_paciente(char nivel[20])// o char aqui é pra receber o nivel do paciente, pq o usuario ja escolheu la no main e n precisar pedir pra digitar dnv
+{
+    paciente *e = (paciente *)malloc(sizeof(paciente));
+    printf("Insira o nome do paciente: ");
+    scanf("%s", e->nome);
+    fflush(stdin);
+    strcpy(e->nivel, nivel);
+    fflush(stdin);
+    printf("Insira o cpf do paciente: ");
+    scanf("%d", &e->cpf);
+    return e; // retorna o elemento criado e eu vou passar ele pra função enqueue la no main
+}
+
+void enqueue(paciente **last, paciente *e, paciente **first = NULL) // enqueue recebe o ponteiro pro ultimo e um elemento a ser inserido
+{
+    e->prox = NULL;
+    if (*last == NULL)
+    {
+        *first = e;
+        *last = e;
+        return;
+    }
+    (*last)->prox = e;
+    *last = e;
+}
+
+void print(paciente *aux)
+{
+    while (aux != NULL)
+    {
+        printf("%s\n", aux->nome);
+        printf("%d\n", aux->cpf);
+        printf("%s\n", aux->nivel);
+        aux = aux->prox;
+    }
+    printf("NULL\n");
+}
+// int pessoas_na_frente(paciente *first, int cpf)
+// {
+
+//     int s = 0;
+//     while (first != NULL)
+//     {
+
+//         if (first->cpf == 0)
+//         {
+//             return s;
+//         }
+//         first = first->prox;
+//         s++;
+//     }
+//     return -1;
+// }
+
+int main(int argc, char const *argv[])
+{
+
+    int opc = -1, opc_2 = -1;
+// vou ajeitar esse monte de switch dps pq fica melhor como tu fez, mas acho q da pra entender
+
+    while (opc != 0)
+    {
+        menu();
+        scanf("%d", &opc);
+        switch (opc)
+        {
+        case 1:
+            printf("Qual o nivel do paciente?\n");
+            printf("1-Emergencia\n");
+            printf("2-Urgencia\n");
+            printf("3-Eletivo\n");
+            scanf("%d", &opc_2);
+            if (opc_2 == 1)
+            {
+                enqueue(&ultimo_emergencia, criar_paciente("emergencia"));
+                // dentro de enqueue eu chamo a função criar paciente q ja vai me retornar um elemento 
+            }
+            else if (opc_2 == 2)
+            {
+                enqueue(&ultimo_urgencia, criar_paciente("urgencia"));
+            }
+            else if (opc_2 == 3)
+            {
+                enqueue(&ultimo_eletivo, criar_paciente("eletivo"));
+            }
+            else
+                printf("Opção inválida");
+
+            break;
+
+        case 2:
+
+            break;
+
+        case 3:
+            break;
+
+        case 4:
+
+            break;
+
+        case 5:
+
+            break;
+
+        case 0:
+            return 0;
+
+        default:
+            printf("Opção inválida");
+            break;
+        }
+    }
+    return 0;
+}
